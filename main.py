@@ -3,15 +3,18 @@ from datacleaner import dedupe_readings
 
 df = dedupe_readings('sensor_log.csv', 'sensor_log_clean.csv')
 
-plt.figure(figsize=(10, 5))
-plt.plot(df['timestamp'], df['thermistor_v'], label='Thermistor (V)')
-plt.plot(df['timestamp'], df['photoresistor_v'], label='Photoresistor (V)')
+df['minutes'] = df['timestamp'] / 60
 
-plt.xlabel('Time (s)')
+plt.figure(figsize=(12, 6))
+plt.plot(df['minutes'], df['thermistor_v'], label='Thermistor (V)', linewidth=1.2)
+plt.plot(df['minutes'], df['photoresistor_v'], label='Photoresistor (V)', linewidth=1.2)
+
+plt.xlabel('Time (minutes)')
 plt.ylabel('Voltage (V)')
-plt.title('Sensor Readings Over Time')
+plt.title('Thermistor and Photoresistor Voltage Over 1 Hour')
 plt.legend()
-plt.grid(True)
+plt.grid(True, alpha=0.3)
 
-plt.savefig('sensor_plot.png')
+plt.tight_layout()
+plt.savefig('sensor_plot_clean.png', dpi=150)
 plt.show()
