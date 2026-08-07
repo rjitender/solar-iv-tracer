@@ -7,7 +7,7 @@ BAUD = 9600
 OUTPUT_FILE = 'iv_sweep.csv'
 
 ser = serial.Serial(PORT, BAUD)
-time.sleep(2)  # let the Arduino reset
+time.sleep(2)  
 
 rows = []
 
@@ -19,8 +19,8 @@ while True:
     if user_input.strip().lower() == 'q':
         break
 
-    ser.reset_input_buffer()   # clear out stale buffered lines
-    time.sleep(0.3)            # let a fresh line arrive
+    ser.reset_input_buffer()   
+    time.sleep(0.3)            
     line = ser.readline().decode().strip()
 
     try:
