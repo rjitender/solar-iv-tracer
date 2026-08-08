@@ -114,24 +114,38 @@ def plot_fit(df, values, fit, filename='iv_curve_fit.png'):
     plt.show()
 
 
+# --- v2 sweep (PWM/MOSFET, automated) ---
+# KNOWN ISSUE: this fit does not converge to a physically meaningful result.
+# n_module pins at the fit's upper bound (30.0), and I_L undershoots the
+# measured Isc by ~40% (10.0 mA fit vs 16.66 mA measured) -- contrast with
+# v1, where these two agreed within 0.5%.
+#
+# Root cause: PWM gate drive is not a clean DC signal, so consecutive duty
+# cycle steps can produce out-of-order voltage readings. Sorting by voltage
+# before fitting then connects points that were not measured adjacently in
+# time, turning point-to-point sensor/PWM noise into visible zigzag rather
+# than smooth curvature -- see iv_curve_v2.png. The optimizer fits that
+# noise rather than the underlying diode behavior.
+#
+# Fix in progress: 0.1-1uF ceramic capacitor across Gate-Source to filter
+# the PWM signal into genuine DC before it reaches the MOSFET, addressing
+# the noise at its source rather than averaging it out downstream.
 def main():
-    df = load_sweep('iv_sweep.csv')
-    values = compute_characteristics(df)
-    fit = fit_diode_model(df)
+    df_v2 = load_sweep('iv_sweep_v2.csv')
+    values_v2 = compute_characteristics(df_v2)
+    fit_v2 = fit_diode_model(df_v2)
 
-    print(f"Isc:  {values['isc_mA']:.2f} mA")
-    print(f"Voc:  {values['voc_V']:.2f} V")
-    print(f"MPP:  {values['mpp_V']:.2f} V, {values['mpp_mA']:.2f} mA, "
-          f"{values['mpp_mW']:.2f} mW")
-    print(f"Fill Factor: {values['fill_factor']:.3f}")
+    print(f"Isc:  {values_v2['isc_mA']:.2f} mA")
+    print(f"Voc:  {values_v2['voc_V']:.2f} V")
+    print(f"MPP:  {values_v2['mpp_V']:.2f} V, {values_v2['mpp_mA']:.2f} mA, {values_v2['mpp_mW']:.2f} mW")
+    print(f"Fill Factor: {values_v2['fill_factor']:.3f}")
     print()
-    print(f"I_L:        {fit['I_L_mA']:.2f} mA")
-    print(f"I_0:        {fit['I_0_A']:.3e} A")
-    print(f"n (module): {fit['n_module']:.2f}")
-    print(f"n (cell):   {fit['n_cell']:.2f}")
-
-    plot_curve(df)
-    plot_fit(df, values, fit)
+    print(f"I_L:        {fit_v2['I_L_mA']:.2f} mA")
+    print(f"I_0:        {fit_v2['I_0_A']:.3e} A")
+    print(f"n (module): {fit_v2['n_module']:.2f}")
+    print(f"n (cell):   {fit_v2['n_cell']:.2f}")
+    plot_curve(df_v2, filename='iv_curve_v2.png')
+    plot_fit(df_v2, values_v2, fit_v2, filename='iv_curve_fit_v2.png')
 
 
 if __name__ == '__main__':
