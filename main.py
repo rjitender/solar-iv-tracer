@@ -227,7 +227,11 @@ def plot_residuals(df, fit, filename='iv_residuals.png'):
 def main():
     SWEEP_FILE = 'iv_sweep_v2_step1.csv'
 
-    df = load_sweep(SWEEP_FILE)
+    V2_EXCLUDE_POINTS = [
+    
+    ]
+
+    df = load_sweep(SWEEP_FILE, exclude=V2_EXCLUDE_POINTS)
     print(f"Loaded {len(df)} points from {SWEEP_FILE}")
 
     df = trim_dead_zones(df)

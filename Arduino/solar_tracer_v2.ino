@@ -104,5 +104,5 @@ void loop() {
   }
 
   analogWrite(GATE_PIN, 0);
-  while (true) { delay(1000); }   
+  while (true) { delay(1000); }   // one sweep per upload
 }
